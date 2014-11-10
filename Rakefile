@@ -78,9 +78,10 @@ task :install_vundle do
 
   puts ""
 
-  vundle_path = "~/.vim/bundle/Vundle.vim"
+  vundle_path = "$HOME/.vim/bundle/Vundle.vim"
   unless File.exists?(vundle_path)
     run %{
+      mkdir #{vundle_path}
       cd $HOME/.yadr
       git clone https://github.com/gmarik/vundle.git #{vundle_path}
     }
