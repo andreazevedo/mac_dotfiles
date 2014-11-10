@@ -89,6 +89,10 @@ task :install_vundle do
   end
 
   run %{vim +PluginInstall +qall}
+  run %{
+    cd ~/.vim/bundle/YouCompleteMe
+    ./install.sh --clang-completer
+  }
 end
 
 task :default => 'install'
