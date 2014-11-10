@@ -1,6 +1,5 @@
 require 'rake'
 require 'fileutils'
-require File.join(File.dirname(__FILE__), 'bin', 'yadr', 'vundle')
 
 desc "Hook our dotfiles into system-standard positions."
 task :install => [:submodule_init, :submodules] do
@@ -21,7 +20,7 @@ task :install => [:submodule_init, :submodules] do
   file_operation(Dir.glob('tmux/*')) if want_to_install?('tmux config')
   file_operation(Dir.glob('vimify/*')) if want_to_install?('vimification of command line tools')
   if want_to_install?('vim configuration (highly recommended)')
-    file_operation(Dir.glob('{vim,vimrc}'))
+    file_operation(Dir.glob('{vimrc}'))
     Rake::Task["install_vundle"].execute
   end
 
@@ -43,7 +42,6 @@ task :install_prezto do
 end
 
 task :update do
-  Rake::Task["vundle_migration"].execute if needs_migration_to_vundle?
   Rake::Task["install"].execute
   #TODO: for now, we do the same as install. But it would be nice
   #not to clobber zsh files
@@ -71,25 +69,6 @@ task :submodules do
   end
 end
 
-desc "Performs migration from pathogen to vundle"
-task :vundle_migration do
-  puts "======================================================"
-  puts "Migrating from pathogen to vundle vim plugin manager. "
-  puts "This will move the old .vim/bundle directory to"
-  puts ".vim/bundle.old and replacing all your vim plugins with"
-  puts "the standard set of plugins. You will then be able to "
-  puts "manage your vim's plugin configuration by editing the "
-  puts "file .vim/vundles.vim"
-  puts "======================================================"
-
-  Dir.glob(File.join('vim', 'bundle','**')) do |sub_path|
-    run %{git config -f #{File.join('.git', 'config')} --remove-section submodule.#{sub_path}}
-    # `git rm --cached #{sub_path}`
-    FileUtils.rm_rf(File.join('.git', 'modules', sub_path))
-  end
-  FileUtils.mv(File.join('vim','bundle'), File.join('vim', 'bundle.old'))
-end
-
 desc "Runs Vundle installer in a clean vim environment"
 task :install_vundle do
   puts "======================================================"
@@ -99,7 +78,7 @@ task :install_vundle do
 
   puts ""
 
-  vundle_path = File.join('vim','bundle', 'vundle')
+  vundle_path = "~/.vim/bundle/Vundle.vim"
   unless File.exists?(vundle_path)
     run %{
       cd $HOME/.yadr
@@ -107,7 +86,7 @@ task :install_vundle do
     }
   end
 
-  Vundle::update_vundle
+  run %{vim +PluginInstall +qall}
 end
 
 task :default => 'install'
@@ -331,10 +310,6 @@ def file_operation(files, method = :symlink)
     puts "=========================================================="
     puts
   end
-end
-
-def needs_migration_to_vundle?
-  File.exists? File.join('vim', 'bundle', 'tpope-vim-pathogen')
 end
 
 
