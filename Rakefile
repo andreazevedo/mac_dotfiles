@@ -41,6 +41,7 @@ task :install_prezto do
   end
 end
 
+desc 'Updates the installation'
 task :update do
   Rake::Task["install"].execute
   #TODO: for now, we do the same as install. But it would be nice
